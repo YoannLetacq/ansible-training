@@ -48,5 +48,8 @@ Vous pouvez ensuite ajouter un fichier `group_vars/dbservers.yml` pour tester
 l'autre méthode de définition de variables de groupe.
 
 ---
-
+Pour valider l'ajout des variables via la méthode group_vars
+```bash 
+ansible-inventory --list -y -vars
+```
 Bonne chance et bon inventaire ! 🧠
