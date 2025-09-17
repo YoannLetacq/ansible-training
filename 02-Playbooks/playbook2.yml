@@ -1,0 +1,40 @@
+- name: TP - Challenge
+  hosts: localhost
+  connection: local
+  become: false
+  vars:
+    target_path: /tmp/config_ansible.txt
+    user_owner: "{{ lookup('env', 'USER') }}"
+  tasks:
+    - name: Créé le fichier config
+      ansible.builtin.file:
+        path: "{{ target_path }}"
+        state: touch
+        mode: '0600'
+        owner: "{{ user_owner }}"
+        group: "{{ user_owner }}"
+
+    - name: Check si le fichier est bien créé
+      ansible.builtin.stat:
+        path: "{{ target_path }}"
+      register: st
+
+    - name: Ajout du bloc de configuration
+      ansible.builtin.blockinfile:
+        path: "{{ target_path }}"
+        prepend_newline: true
+        block: |
+          param1 = valeur1
+          param2 = valeur2
+        owner: "{{ user_owner }}"
+        group: "{{ user_owner }}"
+
+    - name: Récupère le fichier
+      ansible.builtin.slurp:
+        src: "{{ target_path }}"
+      register: file_content
+      when: st.stat.exists
+
+    - name: Affiche le fichier
+      ansible.builtin.debug:
+        msg: "{{ file_content['content'] | b64decode }}"
