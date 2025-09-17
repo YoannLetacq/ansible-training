@@ -1,0 +1,41 @@
+- name: TP - Manipulation de fichiers simples
+  hosts: localhost
+  connection: local
+  become: false
+  vars:
+    target_path: /tmp/sample_copie.txt
+    user_owner: "{{ lookup('env', 'USER') }}"
+  tasks:
+    - name: Copie sample avec le module copy
+      ansible.builtin.copy:
+        src: fichiers/sample.txt
+        dest: "{{ target_path }}"
+        owner: "{{ user_owner }}"
+        group: "{{ user_owner }}"
+        mode: '0644'
+
+    - name: Ajoute une ligne a la fin du fichier copié
+      ansible.builtin.lineinfile:
+        path: "{{ target_path }}"
+        line: "# Cette ligne a été ajoutée par ansible"
+        create: true
+        owner: "{{ user_owner }}"
+        group: "{{ user_owner }}"
+        mode: '0644'
+
+    - name: Check si le fichier est bien créé
+      ansible.builtin.stat:
+        path: "{{ target_path }}"
+      register: st
+
+
+    - name: Récupère le fichier en base64
+      ansible.builtin.slurp:
+        src: "{{ target_path }}"
+      register: file_content
+      when: st.stat.exists
+
+    - name: Affiche le contenu du fichier
+      ansible.builtin.debug:
+        msg: "{{ file_content['content'] | b64decode }}"
+      when: st.stat.exists
