@@ -1,0 +1,31 @@
+- name: TP - Handlers - SSH
+  hosts: server1
+  connection: docker
+  become: true
+  tasks:
+
+    - name: Installer openssh-server
+      ansible.builtin.package:
+        name: openssh-server
+        state: present
+
+    - name: Active le service SSH
+      ansible.builtin.service:
+        name: ssh
+        state: started
+        enabled: true
+
+    - name: Desactive la connection ROOT
+      ansible.builtin.lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: "PermitRootLogin false"
+        state: present
+        backup: true
+      notify: Restart_SSH
+
+  handlers:
+    - name: Restart_SSH
+      ansible.builtin.service:
+        name: ssh
+        state: restarted

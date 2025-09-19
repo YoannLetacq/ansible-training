@@ -1,0 +1,26 @@
+- name: Challenges
+  hosts: server1
+  connection: docker
+  become: true
+  tasks:
+
+    - name: Installe rsyslog
+      ansible.builtin.package:
+        name: rsyslog
+        state: present
+
+    - name: Decommente la tache cron rsyslog
+      ansible.builtin.lineinfile:
+        dest: /etc/rsyslog.d/50-default.conf
+        regexp: '^#cron.* /var/log/cron.log'
+        line: 'cron.* /var/log/cron.log'
+        state: present
+        backup: true
+      notify: Restart_rsyslog
+
+  handlers:
+
+    - name: Restart_rsyslog
+      ansible.builtin.service:
+        name: rsyslog
+        state: restarted
