@@ -1,0 +1,12 @@
+services:
+  server1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ubuntu2404-admin:latest
+    container_name: server1
+    hostname: server1
+    command: ["sleep", "infinity"]
+    tty: true
+    stdin_open: true
+
